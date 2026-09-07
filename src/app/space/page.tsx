@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignOut } from "@/components/sign-out";
 import { requireCouple } from "@/lib/authorization";
 import { listMemories } from "@/lib/memories";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function Space() {
       ) : (
         <p>No memories yet.</p>
       )}
+      <SignOut />
       <Link className="quiet-link" href="/demo">
         View the UI learning preview
       </Link>

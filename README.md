@@ -2,24 +2,24 @@
 
 A private couple app, built incrementally as a learning project.
 
-**Current milestone: Step 1 — runnable UI and security/data foundations.** This is not yet a complete V1 or ready for personal data. The seven feature screens are a clearly marked fictional preview. Authentication configuration, a membership guard, scoped memory reads, and a migration are included; first-account provisioning, private editing, and media delivery are later milestones.
+**Current milestone: Step 1 — runnable UI and security/data foundations.** This is not yet a complete V1 or ready for personal data. The seven feature screens are a clearly marked fictional preview. Authentication configuration, a membership guard, scoped memory reads, and a migration are included; local first-account provisioning and sign-out are now available; private editing and media delivery are later milestones.
 
 ## Run locally
 
-Use Node.js 22.13+ (tested on Node 24) and npm.
+Use Node.js 22.13+ (tested on Node 24) and pnpm 10.26.2.
 
 ```sh
-npm ci
-npm run dev
+pnpm install --frozen-lockfile
+pnpm run dev
 ```
 
 Open http://localhost:3000/demo. No credentials are needed for the fictional preview. It never writes to localStorage, a database, or Cloudinary. `/space` redirects to login when the app is unconfigured. Do not enter real private content into the demo.
 
 ```sh
-npm run typecheck
-npm run lint
-npm test
-npm run build
+pnpm run typecheck
+pnpm run lint
+pnpm test
+pnpm run build
 ```
 
 ## Read the project in this order
@@ -35,17 +35,17 @@ npm run build
 
 Read [the architecture](docs/ARCHITECTURE.md), [Step 1 walkthrough](docs/STEP-1.md), and [security and next steps](docs/SECURITY.md).
 
-## Environment setup (next milestone)
+## Environment setup
 
 Copy `.env.example` to `.env.local`. Keep real values out of Git and chat. `DATABASE_URL` is a Neon PostgreSQL connection string. `BETTER_AUTH_SECRET` must contain at least 32 cryptographically random characters; `BETTER_AUTH_URL` is the exact app origin. Cloudinary settings stay server-side and are not needed for Step 1.
 
 ```sh
-npm run db:generate
+pnpm run db:generate
 # Review generated SQL before applying to your development Neon branch.
-npm run db:migrate
+pnpm run db:migrate
 ```
 
-The included migration has been generated, not applied to a remote database. Do not run migrations against production as part of casual UI testing. Public signup is deliberately disabled; the next milestone adds a one-time server-side account provisioning command and creates the initial couple membership. There is no signup bypass hidden in the demo.
+The included migration has been applied to this checkout’s configured Neon database. Fresh databases still need `pnpm run db:migrate`. Do not run migrations against production as part of casual UI testing. Public signup is deliberately disabled; run `pnpm setup:owner` locally to create the first account and couple membership. Follow [Step 2](docs/STEP-2.md) for the prompts and login check. There is no signup bypass hidden in the demo.
 
 ## V1 delivery sequence
 
@@ -60,10 +60,10 @@ V2 adds an expiring single-use invite for a second account, with transactional c
 
 ## Stack
 
-Next.js App Router + React + TypeScript; Tailwind CSS; Better Auth; Drizzle ORM; Neon PostgreSQL; Cloudinary SDK. Exact installed versions are recorded in `package-lock.json`.
+Next.js App Router + React + TypeScript; Tailwind CSS; Better Auth; Drizzle ORM; Neon PostgreSQL; Cloudinary SDK. Exact installed versions are recorded in `pnpm-lock.yaml`.
 
 References: [Next.js installation](https://nextjs.org/docs/app/getting-started/installation), [Better Auth Drizzle adapter](https://better-auth.com/docs/adapters/drizzle), [Drizzle Neon guide](https://orm.drizzle.team/docs/connect-neon), [Cloudinary access control](https://cloudinary.com/documentation/control_access_to_media).
 
 ### Restricted macOS development environments
 
-If the development watcher reports `EMFILE`, run `WATCHPACK_POLLING=true npm run dev`. The preview in this session was checked with polling enabled. This avoids changing system-wide file limits.
+If the development watcher reports `EMFILE`, run `WATCHPACK_POLLING=true pnpm run dev`. The preview in this session was checked with polling enabled. This avoids changing system-wide file limits.

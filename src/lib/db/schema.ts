@@ -17,7 +17,8 @@ const createdAt = () =>
   timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
 const updatedAt = () =>
   timestamp("updated_at", { withTimezone: true }).defaultNow().notNull();
-// Better Auth owns these four tables; application code should not write passwords.
+// Better Auth owns these tables. Only the local bootstrap script inserts an
+// initial credential, using Better Auth’s own password hashing implementation.
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
