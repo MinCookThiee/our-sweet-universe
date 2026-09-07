@@ -1,0 +1,55 @@
+"use client";
+import { createAuthClient } from "better-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+const client = createAuthClient();
+export function SignIn() {
+  const router = useRouter();
+  const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setPending(true);
+        setMessage("");
+        const data = new FormData(e.currentTarget);
+        try {
+          const result = await client.signIn.email({
+            email: String(data.get("email")),
+            password: String(data.get("password")),
+          });
+          if (result.error)
+            setMessage("Sign-in failed. Check your details and try again.");
+          else {
+            router.push("/space");
+            router.refresh();
+          }
+        } catch {
+          setMessage("Unable to sign in. Please try again.");
+        } finally {
+          setPending(false);
+        }
+      }}
+    >
+      <label>
+        Email
+        <input name="email" type="email" autoComplete="username" required />
+      </label>
+      <label>
+        Password
+        <input
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          minLength={12}
+        />
+      </label>
+      <button className="button" disabled={pending}>
+        {pending ? "Signing in…" : "Enter our space"}
+      </button>
+      <p role="status">{message}</p>
+    </form>
+  );
+}
