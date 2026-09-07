@@ -1,33 +1,16 @@
 import Link from "next/link";
-import { SignOut } from "@/components/sign-out";
 import { requireCouple } from "@/lib/authorization";
-import { listMemories } from "@/lib/memories";
-export const dynamic = "force-dynamic";
-export default async function Space() {
+import { anniversaryStats, calendarDate } from "@/lib/dates";
+import { pageNumber } from "@/lib/memory-input";
+import { MemoryList } from "@/components/memory-list";
+export default async function Space({searchParams}: {searchParams: Promise<{page?:string}>}) {
   const couple = await requireCouple();
-  const memories = await listMemories();
-  return (
-    <main className="content">
-      <p className="eyebrow">YOUR PRIVATE SPACE</p>
-      <h1>{couple.name}</h1>
-      <p>
-        Private membership verified. Your memories appear here as the next
-        learning steps are connected.
-      </p>
-      {memories.length ? (
-        memories.map((m) => (
-          <article className="letter-paper" key={m.id}>
-            <h2>{m.title}</h2>
-            <p>{m.body}</p>
-          </article>
-        ))
-      ) : (
-        <p>No memories yet.</p>
-      )}
-      <SignOut />
-      <Link className="quiet-link" href="/demo">
-        View the UI learning preview
-      </Link>
-    </main>
-  );
+  const stats = anniversaryStats(couple.togetherSince, calendarDate(new Date(),couple.timezone));
+  return <>
+    <section className="private-welcome"><p className="eyebrow">OUR SWEET UNIVERSE</p><h1>Our days, kept close.</h1><p>A place for everything that feels like us.</p>
+      <div className="private-stats"><span><strong>{stats.daysTogether.toLocaleString()}</strong> days together</span><span><strong>{stats.daysUntil === 0 ? "Today ♡" : stats.daysUntil}</strong> {stats.daysUntil === 0 ? "Happy anniversary!" : "days to our anniversary"}</span></div>
+    </section>
+    <div className="private-heading"><h2>Our memories</h2><Link className="button" href="/space/memories/new">+ Add memory</Link></div>
+    <MemoryList page={pageNumber((await searchParams).page)} />
+  </>;
 }

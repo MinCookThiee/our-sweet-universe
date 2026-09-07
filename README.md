@@ -2,7 +2,7 @@
 
 A private couple app, built incrementally as a learning project.
 
-**Current milestone: Step 1 — runnable UI and security/data foundations.** This is not yet a complete V1 or ready for personal data. The seven feature screens are a clearly marked fictional preview. Authentication configuration, a membership guard, scoped memory reads, and a migration are included; local first-account provisioning and sign-out are now available; private editing and media delivery are later milestones.
+**Current milestone: Step 3 — private memories and couple settings.** Login and owner setup are available. `/space` supports text memories, editing, confirmed deletion, milestone stories, pagination, anniversary countdown and owner-only couple settings. `/demo` remains fictional. Photo/video uploads, letters, jar persistence, V2 invitations and full deployment hardening are still upcoming.
 
 ## Run locally
 
@@ -47,11 +47,13 @@ pnpm run db:migrate
 
 The included migration has been applied to this checkout’s configured Neon database. Fresh databases still need `pnpm run db:migrate`. Do not run migrations against production as part of casual UI testing. Public signup is deliberately disabled; run `pnpm setup:owner` locally to create the first account and couple membership. Follow [Step 2](docs/STEP-2.md) for the prompts and login check. There is no signup bypass hidden in the demo.
 
+See [Step 3 walkthrough](docs/STEP-3.md) for the memory flow and verification limits.
+
 ## V1 delivery sequence
 
 - [x] Step 1: architecture, seven-route UI preview, schema, auth configuration, scoped read foundation.
 - [ ] Step 2: development Neon branch, migration integration checks, one-time owner provisioning, sign-in/sign-out, membership and session tests.
-- [ ] Step 3: private couple settings, anniversary date, memories CRUD and Our Story milestones; input validation and authorization tests.
+- [x] Step 3 implementation: private couple settings, anniversary date, text memories CRUD and Our Story milestones; input validation and database isolation checks. Browser create/edit/delete, milestone and settings-save checks passed.
 - [ ] Step 4: authenticated Cloudinary upload and delivery, gallery, ownership checks and deletion cleanup.
 - [ ] Step 5: private letters and jar CRUD; couple-filtered random note selection.
 - [ ] Step 6: live integration tests, backups and restore, deployment hardening and private hosting.
