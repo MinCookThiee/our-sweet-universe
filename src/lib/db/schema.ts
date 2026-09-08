@@ -1,3 +1,4 @@
+import type { SavedHeartPhoto } from "../heart-photo-input";
 import {
   pgTable,
   jsonb,
@@ -86,6 +87,9 @@ export const verification = pgTable(
   (t) => [index("verification_identifier_idx").on(t.identifier)],
 );
 export const couples = pgTable("couples", {
+  photoUploadAt: timestamp("photo_upload_at", { withTimezone: true }),
+  heartPhoto: jsonb("heart_photo").$type<SavedHeartPhoto>(),
+  photoRevision: integer("photo_revision").default(0).notNull(),
   cardText: jsonb("card_text").$type<{ribbon:string;heading:string;message:string}>(),
   cardRevision: integer("card_revision").default(0).notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
@@ -195,3 +199,11 @@ export const jarNotes = pgTable(
   },
   (t) => [index("jar_couple_idx").on(t.coupleId)],
 );
+
+// Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows
+// survive request failures so cleanup can retry without logging private URLs.
+export const heartPhotoUploads = pgTable("heart_photo_uploads", {
+  id: uuid("id").primaryKey(),
+  coupleId: uuid("couple_id").notNull().references(() => couples.id),
+  createdAt: createdAt(),
+}, (t) => [index("heart_photo_uploads_created_idx").on(t.createdAt)]);

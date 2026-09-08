@@ -2,7 +2,7 @@
 
 A private couple app, built incrementally as a learning project.
 
-**Current milestone: Step 3 — private memories and couple settings.** Login and owner setup are available. `/space` supports text memories, editing, confirmed deletion, milestone stories, pagination, anniversary countdown and owner-only couple settings. `/demo` remains fictional. Photo/video uploads, letters, jar persistence, V2 invitations and full deployment hardening are still upcoming.
+**Current milestone: Step 3 — private memories and couple settings.** Login and owner setup are available. `/space` supports text memories, editing, confirmed deletion, milestone stories, pagination, anniversary countdown and owner-only couple settings. `/demo` remains fictional. Shared heart photo upload, replacement, zoom/position editing and removal are implemented with authenticated Cloudinary delivery; see [heart photo setup](docs/HEART-PHOTO.md). Memory photo/video attachments, letters, jar persistence, V2 invitations and full deployment hardening are still upcoming.
 
 ## Run locally
 

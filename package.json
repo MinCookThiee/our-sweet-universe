@@ -12,7 +12,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "setup:owner": "tsx scripts/setup-owner.ts"
+    "setup:owner": "tsx scripts/setup-owner.ts",
+    "media:cleanup": "node --conditions=react-server --import tsx scripts/cleanup-heart-photos.ts"
   },
   "keywords": [],
   "author": "",

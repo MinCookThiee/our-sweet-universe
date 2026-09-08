@@ -1,7 +1,6 @@
 import "server-only";
 import { v2 as cloudinary } from "cloudinary";
-// Foundation only: do not expose upload signatures or media delivery until the
-// membership-checked media routes and provider access tests are implemented.
+// Credentials stay on the server; clients receive only app-owned photo URLs.
 export function getCloudinary() {
   const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
     process.env;

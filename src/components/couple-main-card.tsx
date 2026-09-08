@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useId, useState, type ReactNode } from "react";
+import { photoGeometry, type HeartCrop } from "@/lib/heart-photo-input";
 import { defaultCardText, type CardText } from "@/lib/card-text";
 import styles from "./couple-main-card.module.css";
 import { Heart, Pause, Play, Sparkles } from "lucide-react";
 import { anniversaryStats, calendarDate } from "@/lib/dates";
 
 // Supply membership-protected image endpoints when private uploads are connected.
-export type HeartPhoto = { src: string; alt: string };
+export type HeartPhoto = { src: string; alt: string; width?: number; height?: number; crop?: HeartCrop };
 type Props = {
   name: string;
   togetherSince: string;
   timezone: string;
   initialToday: string;
   photos?: HeartPhoto[];
+  onEditPhoto?: () => void;
   text?: CardText;
   editor?: {ribbon:ReactNode;heading:ReactNode;message:ReactNode};
   controls?: ReactNode;
@@ -21,13 +23,12 @@ type Props = {
 };
 
 export function CoupleMainCard({
-  name,
   togetherSince,
   timezone,
   initialToday,
   photos = [],
   text = defaultCardText,
-  editor, controls, footer,
+  editor, controls, footer, onEditPhoto,
 }: Props) {
   const clipId = useId().replace(/:/g, "");
   const [today, setToday] = useState(initialToday);
@@ -135,8 +136,7 @@ export function CoupleMainCard({
                 <image
                   key={photo.src}
                   href={photo.src}
-                  width="240"
-                  height="220"
+                  {...(photo.width && photo.height && photo.crop ? photoGeometry(photo.width, photo.height, photo.crop) : { width: 240, height: 220 })}
                   preserveAspectRatio="xMidYMid slice"
                   className={`${styles["heart-slide"]} ${i === active ? styles["is-visible"] : ""}`}
                   style={{ transition: reducedMotion ? "none" : undefined }}
@@ -175,6 +175,7 @@ export function CoupleMainCard({
             strokeWidth="1"
           />
         </svg>
+        {onEditPhoto && <button type="button" className={styles["heart-edit"]} onClick={onEditPhoto} aria-label={photos.length ? "Change photo" : "Add heart photo"}><span>{photos.length ? "Change photo" : "＋ Add photo"}</span></button>}
         <span className={styles["heart-ribbon"]}>{editor?.ribbon ?? text.ribbon}</span>
         <Sparkles
           className={styles["heart-sparkle"] + " " + styles["sparkle-two"]}
@@ -211,7 +212,6 @@ export function CoupleMainCard({
           )}
         </div>
       )}
-      <p className={styles["couple-card-name"]}>{name}</p>
       <h1 className={styles["card-heading"]}>{editor?.heading ?? text.heading}</h1>
       <p className={styles["couple-card-message"]}>{editor?.message ?? text.message}</p>
       <div className={styles["couple-card-stats"]}>

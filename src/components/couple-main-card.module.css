@@ -38,3 +38,7 @@
 /* Reserve a quiet corner for the inline edit control. */
 .couple-card-top { padding:0 38px; min-height:32px; line-height:1.5; }
 .couple-card-top svg { flex-shrink:0; }
+
+.heart-edit { position:absolute; top:0; left:10px; width:180px; height:145px; border:0; background:transparent; border-radius:45%; cursor:pointer; color:#853453; display:flex; align-items:flex-end; justify-content:center; padding:0 0 15px; }
+.heart-edit span { background:#fffafbeb; border:1px solid #e7b0c5; border-radius:12px; padding:5px 10px; font-size:12px; box-shadow:0 2px 8px #85345320; }
+.heart-edit:focus-visible { outline:3px solid #a33e68; outline-offset:3px; }
