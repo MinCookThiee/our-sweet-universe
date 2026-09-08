@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   cropInput,
   defaultCrop,
+  heartPhotosInput,
   imageMime,
   limitedBody,
   photoEditInput,
@@ -53,6 +54,18 @@ test("invalid crop and revisions cannot reach photo updates", () => {
     }),
     { revision: 0, crop: defaultCrop },
   );
+});
+test("heart photo collections are limited to three validated photos", () => {
+  const photo = {
+    id: "a1d8c032-6ff4-4cc7-99c1-9a6282fa4a1b",
+    width: 100,
+    height: 100,
+    format: "jpg" as const,
+    crop: defaultCrop,
+  };
+  assert.equal(heartPhotosInput.safeParse([photo, photo, photo]).success, true);
+  assert.equal(heartPhotosInput.safeParse([photo, photo, photo, photo]).success, false);
+  assert.equal(heartPhotosInput.safeParse([{ ...photo, width: 0 }]).success, false);
 });
 test("image headers allow only supported raster formats", () => {
   assert.equal(imageMime(new Uint8Array([255, 216, 255, 224])), "image/jpeg");

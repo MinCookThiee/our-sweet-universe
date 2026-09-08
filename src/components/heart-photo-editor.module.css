@@ -22,3 +22,10 @@
 .actions button[type=submit] { background:#a33e68; color:white; }
 .remove { margin-top:16px; border-top:1px solid #ecd3df; padding-top:12px; font-size:.8rem; }
 .remove button { margin:4px; }
+.thumbRow { display:flex; gap:10px; align-items:center; margin:16px 0; }
+.thumb,.selectedThumb,.addThumb { width:58px; height:58px; padding:0; overflow:hidden; border-radius:14px; border:1px solid #dfb5c8; background:#fffafb; }
+.thumb img,.selectedThumb img { width:100%; height:100%; object-fit:cover; }
+.selectedThumb { outline:3px solid #a33e68; outline-offset:2px; }
+.addThumb { color:#a33e68; font-size:1.8rem; }
+.empty { margin:24px 0; color:#806473; text-align:center; }
+.manage { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; border-top:1px solid #ecd3df; padding-top:12px; }

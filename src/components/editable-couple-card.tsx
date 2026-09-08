@@ -11,7 +11,7 @@ import styles from "./inline-card-editor.module.css";
 export function EditableCoupleCard({
   text,
   revision,
-  photo,
+  photos,
   photoRevision,
   photoReady,
   uploadsEnabled,
@@ -19,7 +19,7 @@ export function EditableCoupleCard({
 }: {
   text: CardText;
   revision: number;
-  photo: SavedHeartPhoto | null;
+  photos: SavedHeartPhoto[];
   photoRevision: number;
   photoReady: boolean;
   uploadsEnabled: boolean;
@@ -70,8 +70,8 @@ export function EditableCoupleCard({
       <CoupleMainCard
         {...props}
         text={saved}
-        photos={photo ? [{src:`/api/heart-photo/${photo.id}`,alt:"Our heart photo",width:photo.width,height:photo.height,crop:photo.crop}] : []}
-        onEditPhoto={!photo && !pending ? () => setPhotoEditing(true) : undefined}
+        photos={photos.map((photo) => ({src:`/api/heart-photo/${photo.id}`,alt:"Our heart photo",width:photo.width,height:photo.height,crop:photo.crop}))}
+        onEditPhoto={!photos.length && !pending ? () => setPhotoEditing(true) : undefined}
         controls={
           !editing ? (
             <button
@@ -113,7 +113,7 @@ export function EditableCoupleCard({
                 disabled={pending}
                 onClick={() => setPhotoEditing(true)}
               >
-                {photo ? "Change heart photo" : "Add heart photo"}
+                {photos.length ? `Manage heart photos (${photos.length}/3)` : "Add heart photos"}
               </button>
               <div className={styles.actions}>
                 <button
@@ -144,7 +144,7 @@ export function EditableCoupleCard({
         }
       />
     </form>
-    {photoEditing && <HeartPhotoEditor ready={photoReady} uploadsEnabled={uploadsEnabled} photo={photo} revision={photoRevision} onClose={() => setPhotoEditing(false)} onSaved={() => {setPhotoEditing(false); router.refresh();}} />}
+    {photoEditing && <HeartPhotoEditor ready={photoReady} uploadsEnabled={uploadsEnabled} photos={photos} revision={photoRevision} onClose={() => setPhotoEditing(false)} onSaved={() => {setPhotoEditing(false); router.refresh();}} />}
     </>
   );
 }

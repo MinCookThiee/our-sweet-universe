@@ -22,6 +22,13 @@
       "when": 1788843414848,
       "tag": "0002_heart_photo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788859990477,
+      "tag": "0003_heart_photo_slideshow",
+      "breakpoints": true
     }
   ]
 }

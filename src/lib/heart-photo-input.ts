@@ -15,6 +15,19 @@ export type SavedHeartPhoto = {
   format: HeartPhotoFormat;
   crop: HeartCrop;
 };
+export const MAX_HEART_PHOTOS = 3;
+export const savedHeartPhotoInput = z.object({
+  id: z.uuid(),
+  width: z.number().int().positive().max(1600),
+  height: z.number().int().positive().max(1600),
+  format: z.enum(["jpg", "png", "webp"]),
+  crop: cropInput,
+});
+export const heartPhotosInput = z.array(savedHeartPhotoInput).max(MAX_HEART_PHOTOS);
+export const photoCollectionEditInput = z.object({
+  revision: z.number().int().min(0).max(2147483646),
+  photos: heartPhotosInput,
+});
 export const photoEditInput = z.object({
   revision: z.number().int().min(0).max(2147483646),
   crop: cropInput,
