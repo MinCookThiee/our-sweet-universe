@@ -67,6 +67,23 @@
   font-size: 0.75rem;
   line-height: 1.6;
 }
+.photoAction {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  border: 1px solid #d2a4b8;
+  border-radius: 14px;
+  background: #fffafb;
+  color: #943456;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.photoAction:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

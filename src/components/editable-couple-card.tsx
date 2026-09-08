@@ -71,7 +71,7 @@ export function EditableCoupleCard({
         {...props}
         text={saved}
         photos={photo ? [{src:`/api/heart-photo/${photo.id}`,alt:"Our heart photo",width:photo.width,height:photo.height,crop:photo.crop}] : []}
-        onEditPhoto={(!photo || editing) && !pending ? () => setPhotoEditing(true) : undefined}
+        onEditPhoto={!photo && !pending ? () => setPhotoEditing(true) : undefined}
         controls={
           !editing ? (
             <button
@@ -104,9 +104,17 @@ export function EditableCoupleCard({
           editing ? (
             <div className={styles.footer}>
               <p className={styles.hint}>
-                Save updates the text. Photo changes use Save photo.
+                Save updates the words on this card.
               </p>
               <p role="status">{state.message}</p>
+              <button
+                className={styles.photoAction}
+                type="button"
+                disabled={pending}
+                onClick={() => setPhotoEditing(true)}
+              >
+                {photo ? "Change heart photo" : "Add heart photo"}
+              </button>
               <div className={styles.actions}>
                 <button
                   type="button"
