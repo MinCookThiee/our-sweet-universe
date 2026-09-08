@@ -6,19 +6,19 @@ import { getAuth, authConfigured } from "./auth";
 import { getDb } from "./db";
 import { coupleMembers, couples, heartPhotoUploads } from "./db/schema";
 import { getCloudinary } from "./cloudinary";
-import { defaultCrop, type SavedHeartPhoto } from "./heart-photo-input";
+import { defaultCrop, MAX_HEART_PHOTOS, type SavedHeartPhoto } from "./heart-photo-input";
 
 export async function photoActor(headers: Headers) {
   if (!authConfigured()) return null;
   const session = await getAuth().api.getSession({ headers });
   if (!session) return null;
-  const [actor] = await getDb().select({ coupleId: couples.id, photo: couples.heartPhoto, revision: couples.photoRevision })
+  const [actor] = await getDb().select({ coupleId: couples.id, photos: couples.heartPhotos, legacyPhoto: couples.heartPhoto, revision: couples.photoRevision })
     .from(couples).innerJoin(coupleMembers, eq(coupleMembers.coupleId, couples.id))
     .where(eq(coupleMembers.userId, session.user.id)).limit(1);
-  return actor ? { ...actor, userId: session.user.id } : null;
+  return actor ? { ...actor, photos: actor.photos ?? (actor.legacyPhoto ? [actor.legacyPhoto] : []), userId: session.user.id } : null;
 }
 export type PhotoActor = NonNullable<Awaited<ReturnType<typeof photoActor>>>;
-export function photoScope(actor: PhotoActor, revision: number) {
+export function photoScope(actor: Pick<PhotoActor, "coupleId" | "userId">, revision: number) {
   return and(eq(couples.id, actor.coupleId), eq(couples.photoRevision, revision),
     sql`exists(select 1 from ${coupleMembers} where ${coupleMembers.coupleId}=${couples.id} and ${coupleMembers.userId}=${actor.userId})`);
 }
@@ -53,9 +53,10 @@ export async function uploadHeartPhoto(actor: PhotoActor, bytes: Uint8Array) {
     throw new Error("invalid-provider-result");
   return { id, width: result.width, height: result.height, format, crop: defaultCrop } satisfies SavedHeartPhoto;
 }
-export async function saveHeartPhoto(actor: PhotoActor, revision: number, photo: SavedHeartPhoto | null, newUpload = false) {
-  const [updated] = await getDb().update(couples).set({ heartPhoto: photo, photoRevision: sql`${couples.photoRevision} + 1` })
-    .where(and(photoScope(actor, revision), newUpload && photo ? sql`exists(select 1 from ${heartPhotoUploads} where ${heartPhotoUploads.id}=${photo.id}::uuid and ${heartPhotoUploads.coupleId}=${actor.coupleId}::uuid and ${heartPhotoUploads.createdAt} > now() - interval '30 minutes')` : undefined))
+export async function saveHeartPhotos(actor: PhotoActor, revision: number, photos: SavedHeartPhoto[], newUploadId?: string) {
+  if (photos.length > MAX_HEART_PHOTOS) return undefined;
+  const [updated] = await getDb().update(couples).set({ heartPhotos: photos, heartPhoto: null, photoRevision: sql`${couples.photoRevision} + 1` })
+    .where(and(photoScope(actor, revision), newUploadId ? sql`exists(select 1 from ${heartPhotoUploads} where ${heartPhotoUploads.id}=${newUploadId}::uuid and ${heartPhotoUploads.coupleId}=${actor.coupleId}::uuid and ${heartPhotoUploads.createdAt} > now() - interval '30 minutes')` : undefined))
     .returning({ revision: couples.photoRevision });
   return updated;
 }
@@ -65,7 +66,7 @@ export async function cleanupHeartPhotos(retiredId?: string) {
   const db = getDb();
   const candidates = await db.select({ id: heartPhotoUploads.id }).from(heartPhotoUploads)
     .where(and(retiredId ? eq(heartPhotoUploads.id, retiredId) : lt(heartPhotoUploads.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
-      sql`not exists(select 1 from ${couples} where ${couples.heartPhoto}->>'id'=${heartPhotoUploads.id}::text)`)).limit(2);
+      sql`not exists(select 1 from ${couples} where ${couples.heartPhotos} @> jsonb_build_array(jsonb_build_object('id', ${heartPhotoUploads.id}::text)) or ${couples.heartPhoto}->>'id'=${heartPhotoUploads.id}::text)`)).limit(2);
   let removed = 0;
   for (const { id } of candidates) {
     try {
@@ -84,9 +85,9 @@ export async function cleanupHeartPhotos(retiredId?: string) {
 // application. Only missing-schema errors receive the setup fallback.
 export async function readHeartPhoto(actor: {coupleId:string;userId:string}) {
   try {
-    const [row] = await getDb().select({photo:couples.heartPhoto,revision:couples.photoRevision}).from(couples)
+    const [row] = await getDb().select({photos:couples.heartPhotos,legacyPhoto:couples.heartPhoto,revision:couples.photoRevision}).from(couples)
       .where(and(eq(couples.id,actor.coupleId),sql`exists(select 1 from ${coupleMembers} where ${coupleMembers.coupleId}=${couples.id} and ${coupleMembers.userId}=${actor.userId})`)).limit(1);
-    return {photo:row?.photo ?? null,revision:row?.revision ?? 0,ready:Boolean(row)};
+    return {photos:row?.photos ?? (row?.legacyPhoto ? [row.legacyPhoto] : []),revision:row?.revision ?? 0,ready:Boolean(row)};
   } catch(error) {
     const code = (error as {code?:string;cause?:{code?:string}})?.cause?.code ?? (error as {code?:string})?.code;
     if (code === "42703" || code === "42P01") return {photo:null,revision:0,ready:false};

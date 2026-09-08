@@ -15,7 +15,7 @@ function pixels() {
 async function main() {
   const {getAuth}=await import('../src/lib/auth');
   const {getCloudinary}=await import('../src/lib/cloudinary');
-  const {uploadHeartPhoto,saveHeartPhoto,cleanupHeartPhotos,publicIdFor}=await import('../src/lib/heart-photo');
+  const {uploadHeartPhoto,saveHeartPhotos,cleanupHeartPhotos,publicIdFor}=await import('../src/lib/heart-photo');
   const {GET}=await import('../src/app/api/heart-photo/[id]/route');
   const sql=neon(process.env.DATABASE_URL!);
   const a=randomUUID(),b=randomUUID(),u=randomUUID(),v=randomUUID();
@@ -36,10 +36,10 @@ async function main() {
     }
     const ownCookie=await login(u),otherCookie=await login(v);
     phase='upload';
-    const actor={coupleId:a,userId:u,photo:null,revision:0};
+  const actor={coupleId:a,userId:u,photos:[],legacyPhoto:null,revision:0};
     const photo=await uploadHeartPhoto(actor,pixels());
     assert.equal(photo.width,1);assert.equal(photo.height,1);assert.equal(photo.format,"png");
-    phase='publish';assert.ok(await saveHeartPhoto(actor,0,photo,true));
+    phase='publish';assert.ok(await saveHeartPhotos(actor,0,[photo],photo.id));
     phase='private app delivery';
     const request=(cookie?:string)=>new Request('http://localhost/api/heart-photo/'+photo.id,{headers:cookie?{cookie}:{}});
     const context={params:Promise.resolve({id:photo.id})};
@@ -54,16 +54,16 @@ async function main() {
     }
     phase='crop and stale revision';
     const positioned={...photo,crop:{zoom:2,x:20,y:70}};
-    assert.ok(await saveHeartPhoto({...actor,photo,revision:1},1,positioned));
-    assert.equal(await saveHeartPhoto(actor,0,photo),undefined);
-    phase='removal'; assert.ok(await saveHeartPhoto({...actor,photo:positioned,revision:2},2,null));
+    assert.ok(await saveHeartPhotos({...actor,photos:[photo],revision:1},1,[positioned]));
+    assert.equal(await saveHeartPhotos(actor,0,[photo]),undefined);
+    phase='removal'; assert.ok(await saveHeartPhotos({...actor,photos:[positioned],revision:2},2,[]));
     assert.equal((await GET(request(ownCookie),context)).status,404);
     phase='provider deletion';assert.equal(await cleanupHeartPhotos(photo.id),1);
     console.log('PASS: real authenticated upload; app image delivery; logged-out/second-couple denial; unsigned original/derivative denial; crop update; stale revision denial; removal; provider deletion.');
   } catch { throw new Error('Live photo check failed at '+phase+'. No secrets or provider URLs printed.'); }
   finally {
     if(initialized){
-      await sql`update couples set heart_photo=null where id=${a}::uuid`;
+      await sql`update couples set heart_photos=null, heart_photo=null where id=${a}::uuid`;
       const assets=await sql`select id from heart_photo_uploads where couple_id=${a}::uuid`;
       let safe=true;
       for(const asset of assets) if(await cleanupHeartPhotos(asset.id)!==1)safe=false;

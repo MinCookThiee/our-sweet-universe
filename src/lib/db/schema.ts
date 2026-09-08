@@ -88,6 +88,7 @@ export const verification = pgTable(
 );
 export const couples = pgTable("couples", {
   photoUploadAt: timestamp("photo_upload_at", { withTimezone: true }),
+  heartPhotos: jsonb("heart_photos").$type<SavedHeartPhoto[]>(),
   heartPhoto: jsonb("heart_photo").$type<SavedHeartPhoto>(),
   photoRevision: integer("photo_revision").default(0).notNull(),
   cardText: jsonb("card_text").$type<{ribbon:string;heading:string;message:string}>(),

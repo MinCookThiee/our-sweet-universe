@@ -10,9 +10,9 @@ async function main() {
   const { photoScope } = await import("../src/lib/heart-photo");
   const sql = neon(process.env.DATABASE_URL!); const db = drizzle(sql);
   const a=randomUUID(),b=randomUUID(),u=randomUUID(),v=randomUUID(),id=randomUUID();
-  const actor={coupleId:a,userId:u,photo:null,revision:0};
+  const actor={coupleId:a,userId:u,photos:[],legacyPhoto:null,revision:0};
   const photo={id,width:100,height:100,format:"jpg" as const,crop:defaultCrop};
-  const mutation=(who:typeof actor, revision:number) => db.update(couples).set({heartPhoto:photo,photoRevision:1}).where(photoScope(who,revision)).returning({id:couples.id}).toSQL();
+  const mutation=(who:typeof actor, revision:number) => db.update(couples).set({heartPhotos:[photo],heartPhoto:null,photoRevision:1}).where(photoScope(who,revision)).returning({id:couples.id}).toSQL();
   const assertWrite=(q:{sql:string;params:unknown[]},count:number)=>sql.query(`with changed as (${q.sql}) select 1 / ((count(*) = ${count})::int) from changed`,q.params);
   try {
     await sql.transaction([
