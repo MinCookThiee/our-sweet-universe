@@ -1494,8 +1494,6 @@ body:has(dialog[open]) {
     padding: 0 20px 17px;
     scroll-padding-inline: 20px;
     overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scrollbar-color: #dda4bb transparent;
   }
   .swipe-memories .memory-card {
     flex: 0 0 84%;
@@ -1752,3 +1750,4 @@ body:has(dialog[open]) {
   .private-form .button { width:100%; min-height:52px; }
 }
 @media(prefers-reduced-motion:reduce) { .private-memory { transition:none; } }
+

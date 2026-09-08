@@ -16,6 +16,8 @@ export async function requireCouple() {
       coupleId: coupleMembers.coupleId,
       role: coupleMembers.role,
       name: couples.name,
+      cardText: couples.cardText,
+      cardRevision: couples.cardRevision,
       togetherSince: couples.togetherSince,
       timezone: couples.timezone,
     })

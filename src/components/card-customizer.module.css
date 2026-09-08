@@ -1,0 +1,8 @@
+.editor { display:grid; grid-template-columns:1fr; gap:28px; }
+.field { display:flex; flex-direction:column; }
+.field small { align-self:flex-end; color:#806473; margin-top:5px; }
+.reset { min-height:48px; background:transparent; border:1px solid #d5b1c1; border-radius:14px; color:#943456; margin-top:12px; font:inherit; cursor:pointer; }
+.hint { color:#806473; font-size:.85rem; line-height:1.6; }
+.preview { min-width:0; }
+.preview > p { font-size:.7rem; margin-bottom:14px; }
+@media(min-width:760px) { .editor { grid-template-columns:1fr 1fr; align-items:start; } .preview { position:sticky; top:20px; } }

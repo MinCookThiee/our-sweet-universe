@@ -1,0 +1,16 @@
+.form { margin:0; }
+.pencil { position:absolute; top:12px; right:12px; width:44px; height:44px; display:grid; place-items:center; border:1px solid #ead1dd; border-radius:50%; background:#fffafbcc; color:#995f79; cursor:pointer; z-index:2; }
+.pencil:hover { background:#fce5ee; }
+.pencil:focus-visible,.field:focus-visible { outline:2px solid #a33e68; outline-offset:3px; }
+.badge { position:absolute; top:15px; right:15px; font-size:.65rem; color:#995f79; }
+.field { display:block; width:100%; box-sizing:border-box; min-height:44px; padding:5px 8px; margin:0; border:1px dashed #bb829d; border-radius:8px; background:#ffffff66; color:inherit; font:inherit; text-align:center; resize:vertical; line-height:1.4; overflow-wrap:anywhere; }
+.ribbon { width:174px; font-size:16px; }
+.heading { min-height:80px; }
+.message { font-size:16px; min-height:72px; }
+.footer { margin-top:20px; border-top:1px solid #e8c9d7; padding-top:12px; }
+.hint { color:#806473; font-size:.75rem; line-height:1.6; }
+.actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+.actions button { min-height:48px; border:1px solid #d2a4b8; border-radius:14px; background:#fffafb; color:#943456; font:inherit; cursor:pointer; }
+.actions button[type=submit] { background:#a33e68; color:white; border-color:#a33e68; }
+.actions button:disabled { opacity:.6; cursor:wait; }
+.reset { display:block; min-height:44px; margin:8px auto 0; border:0; background:transparent; font:inherit; font-size:.8rem; color:#8e5e74; cursor:pointer; }

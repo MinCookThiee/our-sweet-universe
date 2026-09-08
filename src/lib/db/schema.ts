@@ -1,5 +1,6 @@
 import {
   pgTable,
+  jsonb,
   text,
   timestamp,
   boolean,
@@ -85,6 +86,8 @@ export const verification = pgTable(
   (t) => [index("verification_identifier_idx").on(t.identifier)],
 );
 export const couples = pgTable("couples", {
+  cardText: jsonb("card_text").$type<{ribbon:string;heading:string;message:string}>(),
+  cardRevision: integer("card_revision").default(0).notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   togetherSince: date("together_since").notNull(),
