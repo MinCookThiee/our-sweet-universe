@@ -91,7 +91,11 @@ export const couples = pgTable("couples", {
   heartPhotos: jsonb("heart_photos").$type<SavedHeartPhoto[]>(),
   heartPhoto: jsonb("heart_photo").$type<SavedHeartPhoto>(),
   photoRevision: integer("photo_revision").default(0).notNull(),
-  cardText: jsonb("card_text").$type<{ribbon:string;heading:string;message:string}>(),
+  cardText: jsonb("card_text").$type<{
+    ribbon: string;
+    heading: string;
+    message: string;
+  }>(),
   cardRevision: integer("card_revision").default(0).notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
@@ -140,6 +144,36 @@ export const memories = pgTable(
     unique("memory_couple_unique").on(t.id, t.coupleId),
   ],
 );
+// A file is stored once in Cloudinary and can be attached to several memories.
+// The composite unique key lets attachments prove that an asset belongs to the
+// same couple as its memory.
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    coupleId: uuid("couple_id")
+      .notNull()
+      .references(() => couples.id, { onDelete: "cascade" }),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => user.id),
+    publicId: text("public_id").notNull().unique(),
+    resourceType: text("resource_type", { enum: ["image", "video"] }).notNull(),
+    deliveryType: text("delivery_type").default("authenticated").notNull(),
+    format: text("format").notNull(),
+    bytes: integer("bytes").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    durationMs: integer("duration_ms"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("media_asset_couple_unique").on(t.id, t.coupleId),
+    index("media_assets_couple_created_idx").on(t.coupleId, t.createdAt),
+    check("media_assets_authenticated_only", sql`${t.deliveryType} = 'authenticated'`),
+    check("media_assets_resource_type", sql`${t.resourceType} in ('image', 'video')`),
+  ],
+);
 export const memoryMedia = pgTable(
   "memory_media",
   {
@@ -148,12 +182,10 @@ export const memoryMedia = pgTable(
       .notNull()
       .references(() => couples.id, { onDelete: "cascade" }),
     memoryId: uuid("memory_id").notNull(),
-    createdBy: text("created_by")
+    assetId: uuid("asset_id").notNull(),
+    attachedBy: text("attached_by")
       .notNull()
       .references(() => user.id),
-    publicId: text("public_id").notNull().unique(),
-    resourceType: text("resource_type", { enum: ["image", "video"] }).notNull(),
-    deliveryType: text("delivery_type").default("authenticated").notNull(),
     alt: text("alt").notNull(),
     position: integer("position").default(0).notNull(),
     createdAt: createdAt(),
@@ -163,9 +195,12 @@ export const memoryMedia = pgTable(
       columns: [t.memoryId, t.coupleId],
       foreignColumns: [memories.id, memories.coupleId],
     }).onDelete("cascade"),
-    index("media_couple_idx").on(t.coupleId),
-    check("authenticated_media_only", sql`${t.deliveryType} = 'authenticated'`),
-    check("media_resource_type", sql`${t.resourceType} in ('image', 'video')`),
+    foreignKey({
+      columns: [t.assetId, t.coupleId],
+      foreignColumns: [mediaAssets.id, mediaAssets.coupleId],
+    }),
+    unique("memory_media_memory_asset_unique").on(t.memoryId, t.assetId),
+    index("memory_media_memory_position_idx").on(t.memoryId, t.position),
   ],
 );
 export const letters = pgTable(
@@ -203,8 +238,14 @@ export const jarNotes = pgTable(
 
 // Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows
 // survive request failures so cleanup can retry without logging private URLs.
-export const heartPhotoUploads = pgTable("heart_photo_uploads", {
-  id: uuid("id").primaryKey(),
-  coupleId: uuid("couple_id").notNull().references(() => couples.id),
-  createdAt: createdAt(),
-}, (t) => [index("heart_photo_uploads_created_idx").on(t.createdAt)]);
+export const heartPhotoUploads = pgTable(
+  "heart_photo_uploads",
+  {
+    id: uuid("id").primaryKey(),
+    coupleId: uuid("couple_id")
+      .notNull()
+      .references(() => couples.id),
+    createdAt: createdAt(),
+  },
+  (t) => [index("heart_photo_uploads_created_idx").on(t.createdAt)],
+);

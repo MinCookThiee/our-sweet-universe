@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -7,7 +8,7 @@ import { getDb } from "./db";
 import { coupleMembers, couples } from "./db/schema";
 // Call from every private read/write, not only from the layout.
 // Never accept coupleId or createdBy from a browser form.
-export async function requireCouple() {
+export const requireCouple = cache(async function requireCouple() {
   if (!authConfigured()) redirect("/login");
   const session = await getAuth().api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
@@ -27,4 +28,4 @@ export async function requireCouple() {
     .limit(1);
   if (!membership) redirect("/no-access");
   return { ...membership, userId: session.user.id };
-}
+});
