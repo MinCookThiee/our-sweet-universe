@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
   turbopack: { root: process.cwd() },
+
+  // Image Optimization ကို ပိတ်ရန် (Vercel Usage ထပ်မတက်စေရန်)
+  images: {
+    unoptimized: true,
+  },
+
+  
   async headers() {
     return [
       {
