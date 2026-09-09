@@ -21,6 +21,7 @@ export function PrivateNav() {
           <Link
             key={href}
             href={href}
+            prefetch={true}
             aria-current={active ? "page" : undefined}
           >
             <Icon size={20} aria-hidden="true" />

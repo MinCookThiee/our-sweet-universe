@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { saveMemory, deleteMemory, saveCouple } from "@/app/space/actions";
+import { saveMemory, saveCouple } from "@/app/space/actions";
 import type { ActionState } from "@/lib/memory-input";
+import { MediaPicker, type LibraryAsset } from "./media-picker";
 const initial: ActionState = {message: ""};
-type MemoryValues = {id: string; title: string; body: string; happenedOn: string; location: string | null; isMilestone: boolean};
-export function MemoryForm({memory, mode}: {memory: MemoryValues; mode: "create" | "edit"}) {
+type MemoryValues = {id: string; title: string; body: string; happenedOn: string; location: string | null; isMilestone: boolean; assetIds?: string[]};
+export function MemoryForm({memory, mode, assets}: {memory: MemoryValues; mode: "create" | "edit"; assets: LibraryAsset[]}) {
   const [state, action, pending] = useActionState(saveMemory, initial);
   const [draft, setDraft] = useState(memory);
   const error = (key: string) => state.errors?.[key]?.join(" ");
@@ -27,23 +28,15 @@ export function MemoryForm({memory, mode}: {memory: MemoryValues; mode: "create"
       <input id="location" name="location" value={draft.location ?? ""} onChange={e => setDraft({...draft, location: e.target.value})} maxLength={160} aria-invalid={!!error("location")} aria-describedby="location-error" placeholder="Our favourite café" />
       <small id="location-error" className="field-error">{error("location")}</small>
       <label className="check-row"><input type="checkbox" name="isMilestone" checked={draft.isMilestone} onChange={e => setDraft({...draft, isMilestone: e.target.checked})} /> <span>A milestone in Our Story</span></label>
-      <button className="button" type="submit">{pending ? "Saving…" : mode === "create" ? "Keep this memory ♡" : "Save changes"}</button>
+      <MediaPicker assets={assets} selectedIds={memory.assetIds} />
+      <div className="memory-save-panel">
+        <p>{mode === "create" ? "When you’re ready, this saves the words and selected photos together." : "This saves your words and selected photos together."}</p>
+        <button id="memory-save" className="button" type="submit">{pending ? "Saving…" : mode === "create" ? "Keep this memory ♡" : "Save changes"}</button>
+      </div>
     </fieldset>
     <p role="status" className="form-status">{state.message}</p>
     <Link className="quiet-link" href={mode === "edit" ? `/space/memories/${memory.id}` : "/space"}>Cancel</Link>
   </form>;
-}
-export function DeleteMemory({id}: {id: string}) {
-  const [state, action, pending] = useActionState(deleteMemory, initial);
-  return <details className="delete-panel"><summary>Delete this memory</summary>
-    <form action={action}>
-      <input type="hidden" name="id" value={id} />
-      <p>This permanently removes the memory from your shared space.</p>
-      <label className="check-row"><input name="confirm" type="checkbox" required disabled={pending} /> I want to permanently delete it.</label>
-      <button className="button danger-button" disabled={pending}>{pending ? "Deleting…" : "Delete permanently"}</button>
-      <p role="status">{state.message}</p>
-    </form>
-  </details>;
 }
 export function CoupleForm({couple}: {couple: {name: string; togetherSince: string; timezone: string}}) {
   const [state, action, pending] = useActionState(saveCouple, initial);
