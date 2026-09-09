@@ -77,6 +77,7 @@ export function CoupleMainCard({
 
   return (
     <section
+      id="couple-card"
       className={styles["couple-main-card"]}
       aria-label="Our couple card"
     >
@@ -213,7 +214,6 @@ export function CoupleMainCard({
         </div>
       )}
       <h1 className={styles["card-heading"]}>{editor?.heading ?? text.heading}</h1>
-      <p className={styles["couple-card-message"]}>{editor?.message ?? text.message}</p>
       <div className={styles["couple-card-stats"]}>
         <div>
           <strong>{stats.daysTogether.toLocaleString("en")}</strong>
@@ -233,6 +233,7 @@ export function CoupleMainCard({
           </span>
         </div>
       </div>
+      <p className={styles["couple-card-message"]}>{editor?.message ?? text.message}</p>
       <p className={styles["couple-card-since"]}>
         Our story began <time dateTime={togetherSince}>{since}</time>
       </p>

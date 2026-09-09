@@ -15,7 +15,7 @@
 .couple-card-name { margin:12px 0 6px; color:#9b5673; font-size:.8rem; font-weight:600; overflow-wrap:anywhere; }
 .couple-main-card .card-heading { font-size:clamp(1.65rem,6.5vw,2.5rem); line-height:1.2; margin:7px 0 10px; letter-spacing:-.035em; }
 .couple-main-card h1 em { font-weight:400; }
-.couple-card-message { max-width:340px; margin:0 auto; color:#806473; font-size:.85rem; line-height:1.6; }
+.couple-card-message { max-width:340px; margin:18px auto 0; padding:11px 15px; border:1px solid #eac9d6; border-radius:14px; background:#fffafbb8; color:#75505f; font-size:.85rem; line-height:1.6; }
 .couple-card-stats { display:grid; grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr); align-items:center; max-width:450px; margin:18px auto 0; padding-top:16px; border-top:1px solid #dfb6c54f; }
 .couple-card-stats > div { display:flex; flex-direction:column; align-items:center; gap:7px; }
 .couple-card-stats strong { color:#a33e68; font-size:clamp(1.8rem,7vw,2.5rem); font-weight:650; line-height:1; font-variant-numeric:tabular-nums; }

@@ -1705,6 +1705,41 @@ body:has(dialog[open]) {
 .private-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:28px 0 18px; }
 .private-heading h2 { margin:0; }
 .private-memory-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.home-widgets { margin-top:32px; }
+.home-widgets-heading { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:16px; }
+.home-widgets-heading h2 { margin:5px 0 0; font-size:clamp(1.45rem,5vw,2rem); }
+.home-widgets-heading .quiet-link { min-height:44px; display:flex; align-items:center; white-space:nowrap; }
+.home-widget-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.home-widget { position:relative; display:flex; flex-direction:column; min-height:188px; padding:20px; border:1px solid #e8cbd7; border-radius:24px; background:#fffafd; color:#452d3b; overflow:hidden; box-shadow:0 8px 22px rgba(129,64,92,.055); transition:transform .15s ease, box-shadow .15s ease; }
+.home-widget:active { transform:scale(.985); box-shadow:0 3px 10px rgba(129,64,92,.08); }
+.home-widget::after { content:""; position:absolute; width:110px; height:110px; right:-48px; bottom:-56px; border-radius:50%; background:#fce5ee; pointer-events:none; }
+.home-widget-icon { width:38px; height:38px; display:grid; place-items:center; margin-bottom:15px; border-radius:14px; background:#fce5ee; color:#a33e68; }
+.home-widget p { margin:0 0 7px; color:#a33e68; font-size:.67rem; letter-spacing:.12em; font-weight:700; }
+.home-widget h3 { margin:0 0 8px; font-size:1.16rem; line-height:1.2; }
+.home-widget > span:not(.home-widget-icon) { color:#806473; font-size:.84rem; line-height:1.55; }
+.home-widget small { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:auto; padding-top:16px; color:#806473; font-size:.72rem; line-height:1.35; }
+.home-widget small b { color:#a33e68; font-weight:600; white-space:nowrap; }
+.home-widget-wide { grid-column:span 2; min-height:172px; background:linear-gradient(125deg,#fffafc,#fff3ea); }
+.home-widget-wide h3 { font-size:1.45rem; max-width:85%; }
+.home-widget-wide > span:not(.home-widget-icon) { max-width:85%; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.home-widget-photo { align-items:flex-start; background:linear-gradient(145deg,#fffafc,#f9e9f0); }
+.home-widget-photo .home-widget-icon { position:absolute; top:16px; right:16px; width:32px; height:32px; margin:0; border-radius:11px; }
+.home-photo-preview,.home-photo-placeholder { display:block; width:76px; height:76px; margin:3px 0 11px; border:3px solid #fffafb; border-radius:28px; box-shadow:0 4px 12px #9b4d6517; }
+.home-photo-preview { background-size:cover; background-position:center; }
+.home-photo-placeholder { display:grid; place-items:center; background:linear-gradient(135deg,#f6c4d6,#fce4d5); color:#b0587b; font-family:Georgia,serif; font-size:2.2rem; }
+.home-widget-photo p { margin-top:auto; }
+.home-widget-jar { background:linear-gradient(145deg,#fffafc,#fff1da); }
+.home-widget-jar::after { background:#fbe2bc; }
+.future-page { max-width:480px; padding:28px; border:1px dashed #d5a7bb; border-radius:26px; background:#fffafc; }
+.future-page > svg { color:#a33e68; margin-bottom:14px; }
+.future-page > p { color:#806473; line-height:1.65; }
+.future-page .button { display:inline-flex; align-items:center; margin-top:12px; }
+.more-links { display:grid; gap:12px; margin-top:26px; }
+.more-links a { display:flex; align-items:center; gap:15px; min-height:76px; padding:16px; border:1px solid #ecd5df; border-radius:20px; background:#fffafc; color:#452d3b; }
+.more-links a > svg { color:#a33e68; flex-shrink:0; }
+.more-links span { display:flex; flex:1; flex-direction:column; gap:3px; }
+.more-links small { color:#806473; }
+.more-links b { color:#a33e68; }
 .private-memory { display:block; padding:24px; border:1px solid #ecd5df; border-radius:24px; background:#fffafc; transition:transform .15s; min-width:0; }
 .private-memory:active { transform:scale(.985); }
 .private-memory h2 { margin:14px 0 10px; font-size:1.5rem; }
@@ -1740,14 +1775,26 @@ body:has(dialog[open]) {
   .private-shell { padding:0 18px; }
   .private-header { padding:18px 0; }
   .private-header span { display:none; }
-  .private-nav { position:fixed; bottom:max(12px,env(safe-area-inset-bottom)); left:12px; right:12px; z-index:30; box-shadow:0 4px 24px #452d3b18; }
-  .private-nav a { flex-direction:column; gap:4px; font-size:.75rem; min-height:56px; }
+  .private-nav { position:fixed; bottom:max(12px,env(safe-area-inset-bottom)); left:12px; right:12px; z-index:30; box-shadow:0 4px 24px #452d3b18; gap:2px; }
+  .private-nav a { flex-direction:column; gap:3px; font-size:.66rem; min-height:56px; padding:2px; }
   .private-content { padding-top:12px; padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
   .private-welcome,.private-paper { padding:22px; }
   .private-memory-grid { grid-template-columns:1fr; }
+  .home-widgets { margin-top:26px; }
+  .home-widgets-heading { align-items:start; }
+  .home-widgets-heading .quiet-link { font-size:.8rem; }
+  .home-widget-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .home-widget { min-height:168px; padding:16px; border-radius:21px; }
+  .home-widget-wide { grid-column:span 2; min-height:184px; padding:19px; }
+  .home-widget-wide h3 { font-size:1.35rem; }
+  .home-widget:not(.home-widget-wide) h3 { max-width:100%; font-size:1rem; }
+  .home-widget:not(.home-widget-wide) > span:not(.home-widget-icon) { font-size:.76rem; }
+  .home-widget:not(.home-widget-wide) small { font-size:.67rem; }
+  .home-widget-photo .home-widget-icon { top:13px; right:13px; }
+  .home-photo-preview,.home-photo-placeholder { width:65px; height:65px; margin:1px 0 9px; border-radius:23px; }
+  .home-widget small { padding-top:15px; }
   .private-heading { flex-wrap:wrap; }
   .private-heading .button { min-height:48px; padding:12px 16px; }
   .private-form .button { width:100%; min-height:52px; }
 }
 @media(prefers-reduced-motion:reduce) { .private-memory { transition:none; } }
-
