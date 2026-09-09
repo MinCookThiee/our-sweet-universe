@@ -1,20 +1,22 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, BookHeart, Settings } from "lucide-react";
+import { Heart, House, Mail, MoreHorizontal, Sparkles } from "lucide-react";
 export function PrivateNav() {
   const path = usePathname();
   return (
     <nav className="private-nav" aria-label="Our space">
       {[
-        { href: "/space", text: "Memories", Icon: Heart },
-        { href: "/space/story", text: "Our Story", Icon: BookHeart },
-        { href: "/space/settings", text: "Settings", Icon: Settings },
+        { href: "/space", text: "Home", Icon: House },
+        { href: "/space/memories", text: "Memories", Icon: Heart },
+        { href: "/space/letters", text: "Letters", Icon: Mail },
+        { href: "/space/jar", text: "Jar", Icon: Sparkles },
+        { href: "/space/more", text: "More", Icon: MoreHorizontal },
       ].map(({ href, text, Icon }) => {
         const active =
           href === "/space"
-            ? path === href || path.startsWith("/space/memories/")
-            : path === href;
+            ? path === href
+            : path === href || path.startsWith(`${href}/`);
         return (
           <Link
             key={href}
