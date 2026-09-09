@@ -1,9 +1,9 @@
 import "server-only";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { requireCouple } from "./authorization";
 import { getDb } from "./db";
-import { memories } from "./db/schema";
+import { mediaAssets, memories, memoryMedia } from "./db/schema";
 import { memoryScope } from "./db/memory-scope";
 export async function listMemories(page = 1, milestonesOnly = false) {
   const actor = await requireCouple();
@@ -19,6 +19,28 @@ export async function listMemories(page = 1, milestonesOnly = false) {
     .orderBy(desc(memories.happenedOn), desc(memories.id))
     .limit(21)
     .offset((page - 1) * 20);
+}
+
+export async function listMemoryCards(page = 1, milestonesOnly = false) {
+  const actor = await requireCouple();
+  const rows = await getDb()
+    .select()
+    .from(memories)
+    .where(and(memoryScope(actor), milestonesOnly ? eq(memories.isMilestone, true) : undefined))
+    .orderBy(desc(memories.happenedOn), desc(memories.id))
+    .limit(21)
+    .offset((page - 1) * 20);
+  if (!rows.length) return [];
+
+  const photos = await getDb()
+    .select({ memoryId: memoryMedia.memoryId, assetId: mediaAssets.id })
+    .from(memoryMedia)
+    .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
+    .where(and(eq(memoryMedia.coupleId, actor.coupleId), inArray(memoryMedia.memoryId, rows.map((memory) => memory.id))))
+    .orderBy(memoryMedia.position);
+  const coverByMemory = new Map<string, string>();
+  for (const photo of photos) if (!coverByMemory.has(photo.memoryId)) coverByMemory.set(photo.memoryId, photo.assetId);
+  return rows.map((memory) => ({ ...memory, coverId: coverByMemory.get(memory.id) ?? null }));
 }
 export async function findMemory(id: string) {
   const actor = await requireCouple();
