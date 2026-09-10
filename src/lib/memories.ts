@@ -72,5 +72,27 @@ export async function homeMemorySnapshot() {
     .select({ value: count() })
     .from(memories)
     .where(memoryScope(actor));
-  return { latest: latest ?? null, milestone: milestone ?? null, total: total?.value ?? 0 };
+  const favorite = milestone ?? latest;
+  const [favoriteCover] = favorite
+    ? await db
+        .select({ assetId: mediaAssets.id })
+        .from(memoryMedia)
+        .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
+        .where(and(eq(memoryMedia.coupleId, actor.coupleId), eq(memoryMedia.memoryId, favorite.id)))
+        .orderBy(memoryMedia.position)
+        .limit(1)
+    : [];
+  const galleryPhotos = await db
+    .select({ id: mediaAssets.id })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.coupleId, actor.coupleId))
+    .orderBy(desc(mediaAssets.createdAt))
+    .limit(3);
+  return {
+    latest: latest ?? null,
+    milestone: milestone ?? null,
+    total: total?.value ?? 0,
+    favoriteCoverId: favoriteCover?.assetId ?? null,
+    galleryPhotoIds: galleryPhotos.map(({ id }) => id),
+  };
 }
