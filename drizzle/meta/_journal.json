@@ -36,6 +36,34 @@
       "when": 1788936855075,
       "tag": "0004_shared-media-library",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789032000000,
+      "tag": "0005_one_little_question",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789118400000,
+      "tag": "0006_partner-invites",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789200000000,
+      "tag": "0007_fix_credential_account_ids",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789286400000,
+      "tag": "0008_home_widgets",
+      "breakpoints": true
     }
   ]
 }

@@ -3,8 +3,10 @@ import { LockKeyhole } from "lucide-react";
 import { authConfigured } from "@/lib/auth";
 import { SignIn } from "@/components/sign-in";
 export const dynamic = "force-dynamic";
-export default function Login() {
+export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
   const configured = authConfigured();
+  const requested = (await searchParams).next;
+  const next = typeof requested === "string" && requested.startsWith("/invite/") ? requested : "/space";
   return (
     <main className="entry">
       <div className="entry-card setup-card">
@@ -12,7 +14,7 @@ export default function Login() {
         <p className="eyebrow">OUR PRIVATE SPACE</p>
         <h1>{configured ? "Welcome back." : "A little setup first."}</h1>
         {configured ? (
-          <SignIn />
+          <SignIn next={next} />
         ) : (
           <>
             <p>

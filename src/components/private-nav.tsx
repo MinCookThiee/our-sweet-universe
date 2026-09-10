@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, House, Mail, MoreHorizontal, Sparkles } from "lucide-react";
+import { Heart, House, MessageCircleHeart, MoreHorizontal, NotebookText } from "lucide-react";
 export function PrivateNav() {
   const path = usePathname();
   return (
@@ -9,8 +9,8 @@ export function PrivateNav() {
       {[
         { href: "/space", text: "Home", Icon: House },
         { href: "/space/memories", text: "Memories", Icon: Heart },
-        { href: "/space/letters", text: "Letters", Icon: Mail },
-        { href: "/space/jar", text: "Jar", Icon: Sparkles },
+        { href: "/space/questions", text: "Question", Icon: MessageCircleHeart },
+        { href: "/space/notes", text: "Notes", Icon: NotebookText },
         { href: "/space/more", text: "More", Icon: MoreHorizontal },
       ].map(({ href, text, Icon }) => {
         const active =

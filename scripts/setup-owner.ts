@@ -42,7 +42,7 @@ async function main() {
     if ((await rl.question("Type CREATE to save this first account: ")) !== "CREATE") {
       console.log("Cancelled. Nothing was saved."); return;
     }
-    const userId = randomUUID(), accountId = randomUUID(), coupleId = randomUUID();
+    const userId = randomUUID(), coupleId = randomUUID();
     // Use Better Auth's own hash format; never store or log the plaintext password.
     const hash = await hashPassword(input.password);
     // One transaction, with a lock shared by simultaneous setup attempts. The
@@ -54,7 +54,7 @@ async function main() {
           where not exists(select 1 from "user") and not exists(select 1 from couples)
           returning id`,
       sql`insert into account (id,account_id,provider_id,user_id,password)
-          select ${accountId},id,'credential',id,${hash} from "user" where id=${userId}`,
+          select ${randomUUID()},id,'credential',id,${hash} from "user" where id=${userId}`,
       sql`insert into couples (id,name,together_since,timezone)
           select ${coupleId}::uuid,${input.coupleName},${input.togetherSince}::date,${input.timezone}
           from "user" where id=${userId}`,
