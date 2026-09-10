@@ -8,6 +8,22 @@ export function calendarDate(now: Date, timezone: string) {
   const get = (type: string) => parts.find((p) => p.type === type)!.value;
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
+
+export function localClock(now: Date, timezone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(now);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)!.value);
+  return { hour: get("hour"), minute: get("minute") };
+}
+
+export function isQuestionTime(now: Date, timezone: string) {
+  const { hour } = localClock(now, timezone);
+  return hour >= 12;
+}
 export function anniversaryStats(start: string, today: string) {
   const parse = (value: string) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value))

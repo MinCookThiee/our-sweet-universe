@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, ImagePlus, Sparkles } from "lucide-react";
+import { Heart, ImagePlus, MessageCircleHeart, Sparkles } from "lucide-react";
 
 type Memory = {
   id: string;
@@ -29,6 +29,13 @@ export function HomeWidgets({ latest, milestone, memoryCount, heartPhotoSrc }: {
         <h3>A tiny note for us.</h3>
         <span>Save a little thought to open later.</span>
         <small><b>Open the jar →</b></small>
+      </Link>
+      <Link className="home-widget home-widget-question" href="/space/questions">
+        <span className="home-widget-icon"><MessageCircleHeart size={19} aria-hidden="true" /></span>
+        <p>ONE LITTLE QUESTION</p>
+        <h3>A shared thought.</h3>
+        <span>Answer in private, then read each other’s words together.</span>
+        <small><b>Open it →</b></small>
       </Link>
       <Link className="home-widget home-widget-wide home-widget-memory" href={favorite ? `/space/memories/${favorite.id}` : "/space/memories/new"}>
         <span className="home-widget-icon"><Heart size={19} aria-hidden="true" /></span>

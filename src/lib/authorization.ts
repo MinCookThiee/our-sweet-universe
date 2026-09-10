@@ -23,11 +23,15 @@ async function getSessionWithRetry(requestHeaders: Headers) {
     return getAuth().api.getSession({ headers: requestHeaders });
   }
 }
+export const getCurrentSession = cache(async function getCurrentSession() {
+  if (!authConfigured()) return null;
+  return getSessionWithRetry(await headers());
+});
 // Call from every private read/write, not only from the layout.
 // Never accept coupleId or createdBy from a browser form.
 export const requireCouple = cache(async function requireCouple() {
   if (!authConfigured()) redirect("/login");
-  const session = await getSessionWithRetry(await headers());
+  const session = await getCurrentSession();
   if (!session) redirect("/login");
   const [membership] = await getDb()
     .select({

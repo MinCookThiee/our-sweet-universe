@@ -121,6 +121,27 @@ export const coupleMembers = pgTable(
     check("member_role", sql`${t.role} in ('owner', 'partner')`),
   ],
 );
+
+// One private, email-bound invitation for the second member of a couple.
+// Only a hash of the link token is stored, so a database read cannot redeem it.
+export const coupleInvites = pgTable(
+  "couple_invites",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    coupleId: uuid("couple_id")
+      .notNull()
+      .references(() => couples.id, { onDelete: "cascade" })
+      .unique(),
+    email: text("email").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+    acceptedBy: text("accepted_by").references(() => user.id),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("couple_invites_email_idx").on(t.email)],
+);
 export const memories = pgTable(
   "memories",
   {
@@ -234,6 +255,78 @@ export const jarNotes = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("jar_couple_idx").on(t.coupleId)],
+);
+
+// These are the gentle prompts shared by every couple. A round references one
+// prompt, while answers remain private until both members have written theirs.
+export const littleQuestionBank = pgTable(
+  "little_question_bank",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    prompt: text("prompt").notNull(),
+    category: text("category").notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    sortOrder: integer("sort_order").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("little_question_bank_prompt_unique").on(t.prompt),
+    index("little_question_bank_active_idx").on(t.isActive, t.sortOrder),
+  ],
+);
+
+export const littleQuestionRounds = pgTable(
+  "little_question_rounds",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    coupleId: uuid("couple_id")
+      .notNull()
+      .references(() => couples.id, { onDelete: "cascade" }),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => littleQuestionBank.id),
+    // The local calendar day on which this prompt first appears at noon.
+    questionDay: date("question_day").notNull(),
+    status: text("status", {
+      enum: ["answering", "decision", "rest_requested", "revealed", "rested"],
+    })
+      .default("answering")
+      .notNull(),
+    restRequestedBy: text("rest_requested_by").references(() => user.id),
+    restRequestedAt: timestamp("rest_requested_at", { withTimezone: true }),
+    revealedAt: timestamp("revealed_at", { withTimezone: true }),
+    restedAt: timestamp("rested_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    unique("little_question_round_couple_day_unique").on(t.coupleId, t.questionDay),
+    index("little_question_rounds_couple_day_idx").on(t.coupleId, t.questionDay),
+    check(
+      "little_question_round_status",
+      sql`${t.status} in ('answering', 'decision', 'rest_requested', 'revealed', 'rested')`,
+    ),
+  ],
+);
+
+export const littleQuestionAnswers = pgTable(
+  "little_question_answers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    roundId: uuid("round_id")
+      .notNull()
+      .references(() => littleQuestionRounds.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    unique("little_question_answer_round_user_unique").on(t.roundId, t.userId),
+    index("little_question_answers_round_idx").on(t.roundId),
+  ],
 );
 
 // Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows

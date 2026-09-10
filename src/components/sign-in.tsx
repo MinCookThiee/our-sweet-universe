@@ -3,7 +3,7 @@ import { createAuthClient } from "better-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 const client = createAuthClient();
-export function SignIn() {
+export function SignIn({ next = "/space" }: { next?: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -16,13 +16,13 @@ export function SignIn() {
         const data = new FormData(e.currentTarget);
         try {
           const result = await client.signIn.email({
-            email: String(data.get("email")),
+            email: String(data.get("email")).trim().toLowerCase(),
             password: String(data.get("password")),
           });
           if (result.error)
             setMessage("Sign-in failed. Check your details and try again.");
           else {
-            router.push("/space");
+            router.push(next);
             router.refresh();
           }
         } catch {
