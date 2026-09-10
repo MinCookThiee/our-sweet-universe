@@ -40,6 +40,8 @@ export const requireCouple = cache(async function requireCouple() {
       name: couples.name,
       cardText: couples.cardText,
       cardRevision: couples.cardRevision,
+      homeWidgets: couples.homeWidgets,
+      homeWidgetsRevision: couples.homeWidgetsRevision,
       togetherSince: couples.togetherSince,
       timezone: couples.timezone,
     })

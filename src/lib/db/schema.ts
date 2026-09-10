@@ -97,6 +97,12 @@ export const couples = pgTable("couples", {
     message: string;
   }>(),
   cardRevision: integer("card_revision").default(0).notNull(),
+  homeWidgets: jsonb("home_widgets").$type<{
+    id: "photo" | "jar" | "question" | "memory";
+    visible: boolean;
+    size: "half" | "full";
+  }[]>(),
+  homeWidgetsRevision: integer("home_widgets_revision").default(0).notNull(),
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   togetherSince: date("together_since").notNull(),
