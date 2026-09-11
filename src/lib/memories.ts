@@ -38,9 +38,13 @@ export async function listMemoryCards(page = 1, milestonesOnly = false) {
     .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
     .where(and(eq(memoryMedia.coupleId, actor.coupleId), inArray(memoryMedia.memoryId, rows.map((memory) => memory.id))))
     .orderBy(memoryMedia.position);
-  const coverByMemory = new Map<string, string>();
-  for (const photo of photos) if (!coverByMemory.has(photo.memoryId)) coverByMemory.set(photo.memoryId, photo.assetId);
-  return rows.map((memory) => ({ ...memory, coverId: coverByMemory.get(memory.id) ?? null }));
+  const photoIdsByMemory = new Map<string, string[]>();
+  for (const photo of photos) {
+    const attached = photoIdsByMemory.get(photo.memoryId) ?? [];
+    if (attached.length < 3) attached.push(photo.assetId);
+    photoIdsByMemory.set(photo.memoryId, attached);
+  }
+  return rows.map((memory) => ({ ...memory, photoIds: photoIdsByMemory.get(memory.id) ?? [] }));
 }
 export async function findMemory(id: string) {
   const actor = await requireCouple();

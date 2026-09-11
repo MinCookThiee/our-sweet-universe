@@ -6,5 +6,23 @@ import { MemoryForm } from "@/components/memory-form";
 export default async function NewMemory() {
   const couple = await requireCouple();
   const assets = await listMediaAssets(couple);
-  return <><p className="eyebrow">A MOMENT FOR US</p><h1>Keep a memory.</h1><p>It doesn’t have to be a big day to matter.</p><MemoryForm mode="create" assets={assets} memory={{id:randomUUID(),title:"",body:"",location:"",isMilestone:false,happenedOn:calendarDate(new Date(),couple.timezone)}} /></>;
+  return (
+    <>
+      <p className="eyebrow">A MOMENT FOR US</p>
+      <h1>Keep a memory.</h1>
+      <p>It doesn’t have to be a big day to matter.</p>
+      <MemoryForm
+        mode="create"
+        assets={assets}
+        memory={{
+          id: randomUUID(),
+          title: "",
+          body: "",
+          location: "",
+          isMilestone: false,
+          happenedOn: calendarDate(new Date(), couple.timezone),
+        }}
+      />
+    </>
+  );
 }

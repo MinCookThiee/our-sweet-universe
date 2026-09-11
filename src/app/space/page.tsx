@@ -11,8 +11,8 @@ export default async function Space() {
   const heart = await readHeartPhoto(couple);
   const snapshot = await homeMemorySnapshot();
 
-  return <>
+  return <section className="space-home">
     <EditableCoupleCard key={`${couple.cardRevision}-${heart.revision}`} photos={heart.photos ?? []} photoRevision={heart.revision} photoReady={heart.ready} uploadsEnabled={photoConfigured()} revision={couple.cardRevision} text={couple.cardText ?? defaultCardText} name={couple.name} togetherSince={couple.togetherSince} timezone={couple.timezone} initialToday={calendarDate(new Date(),couple.timezone)} />
     <HomeWidgets config={normalizeHomeWidgets(couple.homeWidgets)} latest={snapshot.latest} milestone={snapshot.milestone} memoryCount={snapshot.total} favoriteCoverSrc={snapshot.favoriteCoverId ? `/api/media/${snapshot.favoriteCoverId}` : undefined} galleryPhotoSrcs={snapshot.galleryPhotoIds.map((id) => `/api/media/${id}`)} heartPhotoSrc={heart.photos?.[0] ? `/api/heart-photo/${heart.photos[0].id}` : undefined} />
-  </>;
+  </section>;
 }
