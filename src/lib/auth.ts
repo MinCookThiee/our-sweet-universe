@@ -23,13 +23,8 @@ function createAuth() {
       sendOnSignIn: true,
       autoSignInAfterVerification: true,
       expiresIn: 60 * 60,
-      sendVerificationEmail: async ({ user, url }) => {
-        try {
-          await sendEmailVerification({ to: user.email, name: user.name, url });
-        } catch {
-          console.error("email-verification-send-failed");
-        }
-      },
+      sendVerificationEmail: async ({ user, url }) =>
+        sendEmailVerification({ to: user.email, name: user.name, url }),
     },
     emailAndPassword: {
       enabled: true,

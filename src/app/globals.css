@@ -686,6 +686,17 @@ small {
   text-align: center;
   text-decoration: none;
 }
+.verification-resend {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 @media (min-width: 1500px) {
   .content {
     padding-top: 50px;
@@ -4519,6 +4530,24 @@ body:has(.memory-detail) .private-header {
   flex-shrink: 0;
   margin-top: 3px;
   color: #a33e68;
+}
+.question-progress {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #f0d2df;
+  border-radius: 15px;
+  background: #fff9fc;
+  color: #8f526b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.question-progress svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #b33d6c;
 }
 .question-answer-form {
   display: grid;
