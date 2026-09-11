@@ -19,9 +19,6 @@ export default function Welcome() {
         <Link className="button" href="/space">
           Enter our space <ArrowRight size={17} />
         </Link>
-        <Link className="quiet-link" href="/demo">
-          Explore the sample preview
-        </Link>
         <small>
           <LockKeyhole size={14} /> Your space requires private sign-in.
         </small>

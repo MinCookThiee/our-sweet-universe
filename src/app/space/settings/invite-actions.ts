@@ -5,6 +5,7 @@ import { hashPassword } from "better-auth/crypto";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireCouple, getCurrentSession } from "@/lib/authorization";
+import { getAuth } from "@/lib/auth";
 import { findOpenInvite, inviteLink, inviteTokenHash, newInviteToken } from "@/lib/couple-invites";
 import { getDb } from "@/lib/db";
 import { coupleInvites, coupleMembers, user } from "@/lib/db/schema";
@@ -81,7 +82,13 @@ export async function createPartnerAccount(_previous: InviteActionState, form: F
     console.error("partner-account-create-failed", error);
     return { message: "We couldn’t create this account. Please try again." };
   }
-  return { message: "Your account is ready. Sign in to enter your shared space.", created: true };
+  try {
+    await getAuth().api.sendVerificationEmail({ body: { email: invite.email, callbackURL: "/space" } });
+    return { message: "Your account is ready. Check your inbox and confirm your email before entering your shared space.", created: true };
+  } catch {
+    console.error("partner-email-verification-send-failed");
+    return { message: "Your account is ready, but we couldn’t send the confirmation email. Try signing in to send a new link.", created: true };
+  }
 }
 
 export async function acceptInviteAsExistingUser(_previous: InviteActionState, form: FormData): Promise<InviteActionState> {

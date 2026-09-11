@@ -664,6 +664,28 @@ small {
 .setup-card form .button {
   width: 100%;
 }
+.login-forgot-link,
+.auth-text-link {
+  color: var(--primary);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.login-forgot-link {
+  display: block;
+  margin: -7px 0 20px;
+  text-align: right;
+}
+.auth-text-link {
+  display: inline-block;
+  margin-top: 12px;
+}
+.auth-button-link {
+  display: block;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+}
 @media (min-width: 1500px) {
   .content {
     padding-top: 50px;
