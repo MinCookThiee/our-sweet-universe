@@ -1,12 +1,21 @@
-import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
+import { redirect } from "next/navigation";
 import { authConfigured } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/authorization";
 import { SignIn } from "@/components/sign-in";
 export const dynamic = "force-dynamic";
-export default async function Login({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
+export default async function Login({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
   const configured = authConfigured();
   const requested = (await searchParams).next;
-  const next = typeof requested === "string" && requested.startsWith("/invite/") ? requested : "/space";
+  const next =
+    typeof requested === "string" && requested.startsWith("/invite/")
+      ? requested
+      : "/space";
+  if (configured && (await getCurrentSession())) redirect(next);
   return (
     <main className="entry">
       <div className="entry-card setup-card">
@@ -27,9 +36,6 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
             </p>
           </>
         )}
-        <Link className="quiet-link" href="/demo">
-          Explore the sample preview →
-        </Link>
       </div>
     </main>
   );

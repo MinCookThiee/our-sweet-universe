@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { getDb } from "./db";
 import * as schema from "./db/schema";
+import { sendEmailVerification, sendPasswordResetEmail } from "./email";
 export function authConfigured() {
   return Boolean(
     process.env.DATABASE_URL &&
@@ -17,10 +18,34 @@ function createAuth() {
     baseURL: process.env.BETTER_AUTH_URL!,
     secret: process.env.BETTER_AUTH_SECRET!,
     database: drizzleAdapter(getDb(), { provider: "pg", schema }),
+    emailVerification: {
+      sendOnSignUp: true,
+      sendOnSignIn: true,
+      autoSignInAfterVerification: true,
+      expiresIn: 60 * 60,
+      sendVerificationEmail: async ({ user, url }) => {
+        try {
+          await sendEmailVerification({ to: user.email, name: user.name, url });
+        } catch {
+          console.error("email-verification-send-failed");
+        }
+      },
+    },
     emailAndPassword: {
       enabled: true,
       disableSignUp: true,
       minPasswordLength: 12,
+      requireEmailVerification: true,
+      resetPasswordTokenExpiresIn: 60 * 60,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: async ({ user, url }) => {
+        try {
+          await sendPasswordResetEmail({ to: user.email, url });
+        } catch {
+          // Keep the reset endpoint's response private so account addresses cannot be discovered.
+          console.error("password-reset-email-failed");
+        }
+      },
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7,
