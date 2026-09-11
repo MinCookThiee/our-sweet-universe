@@ -34,8 +34,8 @@ export async function MemoryList({
           {[...monthGroups].map(([month, memories]) => <section className="memory-month" key={month} aria-labelledby={`month-${month}`}>
             <h2 id={`month-${month}`}>{month}</h2>
             <div className="memory-card-stack">
-              {memories.map((memory) => <Link className={memory.coverId ? "memory-card memory-card-photo" : "memory-card"} key={memory.id} href={`/space/memories/${memory.id}`}>
-                {memory.coverId ? <MemoryCover assetId={memory.coverId} eager={eagerCoverIds.has(memory.id)} /> : <span className="memory-card-note" aria-hidden="true">♡</span>}
+              {memories.map((memory) => <Link className={memory.photoIds.length ? "memory-card memory-card-photo" : "memory-card"} key={memory.id} href={`/space/memories/${memory.id}`}>
+                {memory.photoIds.length ? <MemoryCover assetIds={memory.photoIds} eager={eagerCoverIds.has(memory.id)} /> : <span className="memory-card-note" aria-hidden="true">♡</span>}
                 <span className="memory-card-content">
                   <span className="memory-card-meta"><time dateTime={memory.happenedOn}>{memory.happenedOn}</time>{memory.isMilestone && <b>♡ Milestone</b>}</span>
                   <strong>{memory.title}</strong>

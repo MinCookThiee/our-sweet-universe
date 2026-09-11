@@ -38,9 +38,13 @@ export async function listMemoryCards(page = 1, milestonesOnly = false) {
     .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
     .where(and(eq(memoryMedia.coupleId, actor.coupleId), inArray(memoryMedia.memoryId, rows.map((memory) => memory.id))))
     .orderBy(memoryMedia.position);
-  const coverByMemory = new Map<string, string>();
-  for (const photo of photos) if (!coverByMemory.has(photo.memoryId)) coverByMemory.set(photo.memoryId, photo.assetId);
-  return rows.map((memory) => ({ ...memory, coverId: coverByMemory.get(memory.id) ?? null }));
+  const photoIdsByMemory = new Map<string, string[]>();
+  for (const photo of photos) {
+    const attached = photoIdsByMemory.get(photo.memoryId) ?? [];
+    if (attached.length < 3) attached.push(photo.assetId);
+    photoIdsByMemory.set(photo.memoryId, attached);
+  }
+  return rows.map((memory) => ({ ...memory, photoIds: photoIdsByMemory.get(memory.id) ?? [] }));
 }
 export async function findMemory(id: string) {
   const actor = await requireCouple();
@@ -72,5 +76,27 @@ export async function homeMemorySnapshot() {
     .select({ value: count() })
     .from(memories)
     .where(memoryScope(actor));
-  return { latest: latest ?? null, milestone: milestone ?? null, total: total?.value ?? 0 };
+  const favorite = milestone ?? latest;
+  const [favoriteCover] = favorite
+    ? await db
+        .select({ assetId: mediaAssets.id })
+        .from(memoryMedia)
+        .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
+        .where(and(eq(memoryMedia.coupleId, actor.coupleId), eq(memoryMedia.memoryId, favorite.id)))
+        .orderBy(memoryMedia.position)
+        .limit(1)
+    : [];
+  const galleryPhotos = await db
+    .select({ id: mediaAssets.id })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.coupleId, actor.coupleId))
+    .orderBy(desc(mediaAssets.createdAt))
+    .limit(3);
+  return {
+    latest: latest ?? null,
+    milestone: milestone ?? null,
+    total: total?.value ?? 0,
+    favoriteCoverId: favoriteCover?.assetId ?? null,
+    galleryPhotoIds: galleryPhotos.map(({ id }) => id),
+  };
 }
