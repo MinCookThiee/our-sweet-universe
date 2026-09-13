@@ -27,6 +27,9 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  // A quiet, approximate presence signal for the other member of a couple.
+  // It is refreshed only while someone is actively using the private app.
+  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -332,6 +335,25 @@ export const littleQuestionAnswers = pgTable(
   (t) => [
     unique("little_question_answer_round_user_unique").on(t.roundId, t.userId),
     index("little_question_answers_round_idx").on(t.roundId),
+  ],
+);
+
+// A question can be new for one person even after the other person has opened
+// it. This record lets the navigation badge stay private to each member.
+export const littleQuestionViews = pgTable(
+  "little_question_views",
+  {
+    roundId: uuid("round_id")
+      .notNull()
+      .references(() => littleQuestionRounds.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    seenAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.roundId, t.userId] }),
+    index("little_question_views_user_idx").on(t.userId, t.seenAt),
   ],
 );
 

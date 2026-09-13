@@ -1,9 +1,33 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Heart, House, MessageCircleHeart, MoreHorizontal, NotebookText } from "lucide-react";
 export function PrivateNav() {
   const path = usePathname();
+  const [questionAttention, setQuestionAttention] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const response = await fetch("/api/question-attention", { cache: "no-store" });
+        if (!response.ok || cancelled) return;
+        const data = await response.json() as { attention: string | null };
+        if (!cancelled) setQuestionAttention(Boolean(data.attention));
+      } catch {
+        // A missed badge should never interrupt navigation.
+      }
+    };
+    void refresh();
+    const interval = window.setInterval(refresh, 60_000);
+    window.addEventListener("question-attention-changed", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("question-attention-changed", refresh);
+    };
+  }, []);
   return (
     <nav className="private-nav" aria-label="Our space">
       {[
@@ -24,7 +48,7 @@ export function PrivateNav() {
             prefetch={true}
             aria-current={active ? "page" : undefined}
           >
-            <Icon size={20} aria-hidden="true" />
+            <span className="private-nav-icon"><Icon size={20} aria-hidden="true" />{href === "/space/questions" && questionAttention ? <i className="question-nav-badge" aria-label="A question needs your attention" /> : null}</span>
             <span>{text}</span>
           </Link>
         );
