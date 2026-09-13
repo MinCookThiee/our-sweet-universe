@@ -1,12 +1,13 @@
 import "server-only";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { requireCouple } from "./authorization";
-import { calendarDate, isQuestionTime } from "./dates";
+import { calendarDate, isQuestionTime, localClock } from "./dates";
 import { getDb } from "./db";
 import {
   littleQuestionAnswers,
   littleQuestionBank,
   littleQuestionRounds,
+  littleQuestionViews,
 } from "./db/schema";
 
 type Actor = Awaited<ReturnType<typeof requireCouple>>;
@@ -24,6 +25,8 @@ export type LittleQuestionView = {
   answers: { body: string; isOwn: boolean }[];
   answerCount: number;
   restRequestedByMe: boolean;
+  nearDecisionTime: boolean;
+  timezone: string;
 };
 
 export type CompletedLittleQuestion = {
@@ -164,6 +167,8 @@ export async function getLittleQuestionView(): Promise<LittleQuestionView> {
       answers: [],
       answerCount: 0,
       restRequestedByMe: false,
+      nearDecisionTime: false,
+      timezone: actor.timezone,
     };
 
   const allAnswers = await getDb()
@@ -172,6 +177,14 @@ export async function getLittleQuestionView(): Promise<LittleQuestionView> {
     .where(eq(littleQuestionAnswers.roundId, round.id));
   const own = allAnswers.find((answer) => answer.userId === actor.userId)?.body ?? null;
   const phase = round.status as LittleQuestionView["phase"];
+  const { hour, minute } = localClock(new Date(), actor.timezone);
+  const today = calendarDate(new Date(), actor.timezone);
+  const nearDecisionTime =
+    phase === "answering" &&
+    !own &&
+    round.questionDay < today &&
+    hour === 11 &&
+    minute >= 30;
   return {
     phase,
     question: {
@@ -191,7 +204,20 @@ export async function getLittleQuestionView(): Promise<LittleQuestionView> {
         : [],
     answerCount: allAnswers.length,
     restRequestedByMe: round.restRequestedBy === actor.userId,
+    nearDecisionTime,
+    timezone: actor.timezone,
   };
+}
+
+export async function markLittleQuestionSeen(roundId: string) {
+  const actor = await requireCouple();
+  const round = await findQuestionRoundForActor(actor, roundId);
+  if (!round) return false;
+  await getDb()
+    .insert(littleQuestionViews)
+    .values({ roundId, userId: actor.userId })
+    .onConflictDoNothing();
+  return true;
 }
 
 export async function getCompletedLittleQuestions(

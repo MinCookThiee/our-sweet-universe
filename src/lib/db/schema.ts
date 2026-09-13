@@ -338,6 +338,25 @@ export const littleQuestionAnswers = pgTable(
   ],
 );
 
+// A question can be new for one person even after the other person has opened
+// it. This record lets the navigation badge stay private to each member.
+export const littleQuestionViews = pgTable(
+  "little_question_views",
+  {
+    roundId: uuid("round_id")
+      .notNull()
+      .references(() => littleQuestionRounds.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    seenAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.roundId, t.userId] }),
+    index("little_question_views_user_idx").on(t.userId, t.seenAt),
+  ],
+);
+
 // Upload intent is persisted BEFORE contacting Cloudinary. Unreferenced rows
 // survive request failures so cleanup can retry without logging private URLs.
 export const heartPhotoUploads = pgTable(

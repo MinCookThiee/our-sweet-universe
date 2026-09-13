@@ -26,7 +26,12 @@ export async function listMemoryCards(page = 1, milestonesOnly = false) {
   const rows = await getDb()
     .select()
     .from(memories)
-    .where(and(memoryScope(actor), milestonesOnly ? eq(memories.isMilestone, true) : undefined))
+    .where(
+      and(
+        memoryScope(actor),
+        milestonesOnly ? eq(memories.isMilestone, true) : undefined,
+      ),
+    )
     .orderBy(desc(memories.happenedOn), desc(memories.id))
     .limit(21)
     .offset((page - 1) * 20);
@@ -36,7 +41,15 @@ export async function listMemoryCards(page = 1, milestonesOnly = false) {
     .select({ memoryId: memoryMedia.memoryId, assetId: mediaAssets.id })
     .from(memoryMedia)
     .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
-    .where(and(eq(memoryMedia.coupleId, actor.coupleId), inArray(memoryMedia.memoryId, rows.map((memory) => memory.id))))
+    .where(
+      and(
+        eq(memoryMedia.coupleId, actor.coupleId),
+        inArray(
+          memoryMedia.memoryId,
+          rows.map((memory) => memory.id),
+        ),
+      ),
+    )
     .orderBy(memoryMedia.position);
   const photoIdsByMemory = new Map<string, string[]>();
   for (const photo of photos) {
@@ -44,7 +57,10 @@ export async function listMemoryCards(page = 1, milestonesOnly = false) {
     if (attached.length < 3) attached.push(photo.assetId);
     photoIdsByMemory.set(photo.memoryId, attached);
   }
-  return rows.map((memory) => ({ ...memory, photoIds: photoIdsByMemory.get(memory.id) ?? [] }));
+  return rows.map((memory) => ({
+    ...memory,
+    photoIds: photoIdsByMemory.get(memory.id) ?? [],
+  }));
 }
 export async function findMemory(id: string) {
   const actor = await requireCouple();
@@ -82,7 +98,12 @@ export async function homeMemorySnapshot() {
         .select({ assetId: mediaAssets.id })
         .from(memoryMedia)
         .innerJoin(mediaAssets, eq(memoryMedia.assetId, mediaAssets.id))
-        .where(and(eq(memoryMedia.coupleId, actor.coupleId), eq(memoryMedia.memoryId, favorite.id)))
+        .where(
+          and(
+            eq(memoryMedia.coupleId, actor.coupleId),
+            eq(memoryMedia.memoryId, favorite.id),
+          ),
+        )
         .orderBy(memoryMedia.position)
         .limit(1)
     : [];

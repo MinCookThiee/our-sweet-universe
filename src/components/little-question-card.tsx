@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
-import { Clock3, HeartHandshake, LockKeyhole, MessageCircleHeart, Pause, Sparkles } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
+import { BellRing, Clock3, HeartHandshake, LockKeyhole, MessageCircleHeart, Pause, Sparkles } from "lucide-react";
 import { actOnLittleQuestion } from "@/app/space/questions/actions";
 import type { LittleQuestionActionState } from "@/lib/little-question-input";
 import type { LittleQuestionView } from "@/lib/little-questions";
+import { calendarDate, localClock } from "@/lib/dates";
 
 const initial: LittleQuestionActionState = { message: "" };
 
@@ -14,6 +15,12 @@ function SubmitButton({ children, secondary = false }: { children: React.ReactNo
 
 export function LittleQuestionCard({ question }: { question: LittleQuestionView }) {
   const [state, action, pending] = useActionState(actOnLittleQuestion, initial);
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    if (!question.question || question.phase !== "answering" || question.ownAnswer) return;
+    const interval = window.setInterval(() => setClock(Date.now()), 30_000);
+    return () => window.clearInterval(interval);
+  }, [question.ownAnswer, question.phase, question.question]);
   if (question.phase === "waiting") {
     return <section className="little-question-card little-question-waiting"><Sparkles aria-hidden="true" /><p className="eyebrow">ONE LITTLE QUESTION</p><h1>See you at noon.</h1><p>One shared question arrives here at 12:00 in your couple timezone.</p></section>;
   }
@@ -38,5 +45,13 @@ export function LittleQuestionCard({ question }: { question: LittleQuestionView 
   const partnerHasAnswered = !question.ownAnswer && question.answerCount === 1;
   const waitingForPartner = Boolean(question.ownAnswer) && question.answerCount === 1;
   const neitherHasAnswered = question.answerCount === 0;
-  return <section className="little-question-card"><div className="question-icon"><MessageCircleHeart aria-hidden="true" /></div><p className="eyebrow">ONE LITTLE QUESTION</p><h1>A little moment for us.</h1><blockquote>{prompt}</blockquote><p className="question-private"><LockKeyhole size={16} aria-hidden="true" /> Your answers stay hidden until you have both answered.</p>{neitherHasAnswered ? <p className="question-progress"><Clock3 size={18} aria-hidden="true" /> Neither of you has answered yet. Your little thoughts can begin whenever you’re ready.</p> : null}{partnerHasAnswered ? <p className="question-progress"><HeartHandshake size={18} aria-hidden="true" /> Your person has left a little thought for you. Add yours when it feels right.</p> : null}{waitingForPartner ? <p className="question-progress"><Clock3 size={18} aria-hidden="true" /> Your answer is safely tucked away. Waiting for your person’s little thought.</p> : null}<form action={action} className="question-answer-form"><input type="hidden" name="roundId" value={id} /><input type="hidden" name="intent" value="answer" /><label htmlFor="little-question-answer">Your answer</label><textarea id="little-question-answer" name="body" defaultValue={question.ownAnswer ?? ""} maxLength={1200} rows={5} required disabled={pending} placeholder="Write whatever feels true today…" /><div className="question-actions"><SubmitButton>{pending ? "Saving…" : question.ownAnswer ? "Update my answer" : "Keep my answer"}</SubmitButton></div></form>{inDecision ? <><form action={action} className="question-rest-form"><input type="hidden" name="roundId" value={id} /><input type="hidden" name="intent" value="request-rest" /><button type="submit" className="question-secondary" disabled={pending}>Request to let this rest</button></form><p className="question-decision-note">You have had a full day with this question. You can answer now, or ask your person to let it rest.</p></> : null}{message}</section>;
+  const reminderNow = new Date(clock);
+  const { hour: reminderHour, minute: reminderMinute } = localClock(reminderNow, question.timezone);
+  const softReminder =
+    question.phase === "answering" &&
+    !question.ownAnswer &&
+    question.question.questionDay < calendarDate(reminderNow, question.timezone) &&
+    reminderHour === 11 &&
+    reminderMinute >= 30;
+  return <section className="little-question-card"><div className="question-icon"><MessageCircleHeart aria-hidden="true" /></div><p className="eyebrow">ONE LITTLE QUESTION</p><h1>A little moment for us.</h1><blockquote>{prompt}</blockquote><p className="question-private"><LockKeyhole size={16} aria-hidden="true" /> Your answers stay hidden until you have both answered.</p>{softReminder ? <p className="question-soft-reminder"><BellRing size={18} aria-hidden="true" /><span><b>A little time remains.</b> There’s still room for your answer. After noon, you can answer or decide together to let this one rest.</span></p> : null}{neitherHasAnswered ? <p className="question-progress"><Clock3 size={18} aria-hidden="true" /> Neither of you has answered yet. Your little thoughts can begin whenever you’re ready.</p> : null}{partnerHasAnswered ? <p className="question-progress"><HeartHandshake size={18} aria-hidden="true" /> Your person has left a little thought for you. Add yours when it feels right.</p> : null}{waitingForPartner ? <p className="question-progress"><Clock3 size={18} aria-hidden="true" /> Your answer is safely tucked away. Waiting for your person’s little thought.</p> : null}<form action={action} className="question-answer-form"><input type="hidden" name="roundId" value={id} /><input type="hidden" name="intent" value="answer" /><label htmlFor="little-question-answer">Your answer</label><textarea id="little-question-answer" name="body" defaultValue={question.ownAnswer ?? ""} maxLength={1200} rows={5} required disabled={pending} placeholder="Write whatever feels true today…" /><div className="question-actions"><SubmitButton>{pending ? "Saving…" : question.ownAnswer ? "Update my answer" : "Keep my answer"}</SubmitButton></div></form>{inDecision ? <><form action={action} className="question-rest-form"><input type="hidden" name="roundId" value={id} /><input type="hidden" name="intent" value="request-rest" /><button type="submit" className="question-secondary" disabled={pending}>Request to let this rest</button></form><p className="question-decision-note">You have had a full day with this question. You can answer now, or ask your person to let it rest.</p></> : null}{message}</section>;
 }
