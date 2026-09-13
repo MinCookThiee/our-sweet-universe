@@ -27,6 +27,9 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  // A quiet, approximate presence signal for the other member of a couple.
+  // It is refreshed only while someone is actively using the private app.
+  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

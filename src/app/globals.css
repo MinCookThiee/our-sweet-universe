@@ -4454,6 +4454,29 @@ body:has(.memory-detail) .private-header {
 }
 
 /* One Little Question: private answers, then a shared reveal. */
+.partner-presence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: 16px auto -2px;
+  padding: 8px 13px;
+  border: 1px solid #f0d5e1;
+  border-radius: 999px;
+  background: #fffafd;
+  color: #8b6475;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: center;
+}
+.partner-presence svg {
+  flex-shrink: 0;
+  color: #b33d6c;
+}
+.partner-presence b { color: #6a3e52; }
+
 .little-question-card {
   position: relative;
   max-width: 680px;
